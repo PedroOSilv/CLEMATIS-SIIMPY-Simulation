@@ -1,5 +1,6 @@
 import pm4py
 import node
+import json
 import simpy
 from datetime import datetime, timedelta
 
@@ -12,11 +13,10 @@ env = simpy.Environment()
 pn = pm4py.read_pnml("generatedPetriNet.pnml")
 
 #print the petriNet
-#pm4py.save_vis_petri_net(pn[0], pn[1], pn[2], 'petri_net.png')
+pm4py.save_vis_petri_net(pn[0], pn[1], pn[2], 'petri_net.png')
 
 #create a empty list of nodes
 nodes = []
-
 
 '''for i in pn[0].transitions:
     print(i.label)'''
@@ -44,6 +44,7 @@ for i in nodes:
                 if k.activityId == str(arcs_output[0].target):
                     i.nodeTargets.append(k)
 
+'''
 #if desired, insert the respective buffer size of each node
 answer = input("Do you want to insert a buffer size for each node? yes (y) or no (n):")
 if answer == "y":
@@ -59,9 +60,34 @@ for i in nodes:
     timeActivity = int(input("Time activity: "))
     i.set_timeActivity(timeActivity)
 
-#declaring and instantiating the inicial buffer with no limit of tokens
+'''
+
+#charge the JSON with the metadata 
+f = open('graphInformation.json')
+JSONnodeList = json.load(f)
+metadataList = []
+
+for i in JSONnodeList:
+    jsonElement = json.loads(i)
+    metadataList.append(jsonElement)
+
+#charge the matadata into the node's object
 initialTargetsList = []
-initialTargetsList.append(nodes[0])
+for i in range(len(nodes)):
+    jsonNode = metadataList[i]
+    
+    nodes[i].set_timeActivity(int(jsonNode["timeActivity"]))
+    nodes[i].set_buffer(int(jsonNode["bufferSize"]))
+
+    #find the nodes from the first production step
+   
+    if int(jsonNode["productionStep"]) == 0:
+        for j in nodes:
+            if int(jsonNode["activityId"]) == int(j.activityId):
+                initialTargetsList.append(j)
+    
+
+#instantiating the inicial buffer with no limit of tokens
 source =node.Source(env,initialTargetsList)
 
 # bregin the simulation, first with the source node tha irrigates the first production step

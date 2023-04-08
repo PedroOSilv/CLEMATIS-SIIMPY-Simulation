@@ -23,8 +23,8 @@ class Source:
             #para cada nó na primeira etapa de produção incremenete um token enquanto a simuação durar
             for node in self.nodeTargets:
 
-                yield self.env.timeout(1) # TODO deveria ter tempo zero de espera
-                node.buffer.put(token) # XXX não deveria bloqueiar se o buffer do nó estiver cheio
+                #yield self.env.timeout(1) # TODO deveria ter tempo zero de espera
+                yield node.buffer.put(token) # XXX não deveria bloqueiar se o buffer do nó estiver cheio
                 token = token + 1
 
 
@@ -69,6 +69,7 @@ class Node:
             self.activityId = args[0]
             self.nodeTargets = []
             self.events = []
+        
 
     #este método simula a operação do respectivo nó
     def operate(self):

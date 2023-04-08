@@ -1,7 +1,10 @@
 import argparse
 import numpy as np
+import json
+import simpleNode
 from model_gen import ModelGeneratorNS
 from pntools import petrinet as pn
+
 
 # Para rodar basta inserir na linha de comando:
 # python3 petriNetConverter.py -n <numero de nós> -s <numero de etapas de producao> -r <semente>
@@ -25,7 +28,6 @@ print("[INFO] Generating graph...")
     #work_stations: the list of nodes
     #production_edges: the list of edges
     #vertex_attr: the node's properties
-
  
 mg = ModelGeneratorNS(n=args["nodes"],
                       s=args["production_steps"],
@@ -89,7 +91,6 @@ for i in edges:
     for j in net.places:
 
         #se eu encontrar alguma aresta la lista de arestas do grafo, que pertence a este place eu referencio
-        
         if net.places[j].label == str(i[0]):
             #marco a fonte desta aresta
             newEdge1.source = j
@@ -109,8 +110,40 @@ for i in edges:
     #adiciono a transição na petriNet
     net.transitions[newTransition.id] = newTransition
 
-    
-print(net)
-
 #escrevo a petriNet em um arquivo
 pn.write_pnml_file(net, "generatedPetriNet.pnml", relative_offset=True)
+
+#if desired, insert the respective buffer size of each node
+print("For each node inser the buffer size and time activity:")
+
+#setting up the node's information
+#  goes into all the steps
+nodeList = []
+
+for i in range(len(ws)):
+    step_node_list = ws[i]
+    print("production step:",i,"\n")
+    #goes into all the nodes of each step
+    for j in range(len(step_node_list)):
+        print("Node:",step_node_list[j])
+        bufferSize = int(input("Insert the buffer size: "))
+        timeActivity = int(input("Insert the time activity: "))
+        productionStep = i
+
+        #adding the metadata of the node in simple node class modelation
+        newNode = simpleNode.simpleNode(timeActivity,step_node_list[j],bufferSize,productionStep)
+        nodeList.append(newNode)
+
+#transform into a json file
+JSONlist = []
+for i in nodeList:
+    JSONnode = json.dumps(i.__dict__)
+    JSONlist.append(JSONnode)
+
+#save the json into a file
+with open('graphInformation.json', 'w') as json_file:
+    json.dump(JSONlist, json_file)
+
+print("The graph was sucessfuly generated!")
+
+
