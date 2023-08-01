@@ -90,7 +90,11 @@ class Node:
 
     #setter do buffer, inicializa o buffer com um novo tamanho
     def set_buffer(self,bufferSize):
-        self.buffer = simpy.Store(self.env,capacity=bufferSize)
+        if int(bufferSize) == 0:
+            self.buffer = simpy.Store(self.env)
+        else:
+            self.buffer = simpy.Store(self.env,capacity=bufferSize)
+
 
     #setter do tempo da atividade
     def set_timeActivity(self,timeActivity):

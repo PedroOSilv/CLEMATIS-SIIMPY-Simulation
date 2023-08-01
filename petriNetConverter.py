@@ -2,6 +2,7 @@ import argparse
 import numpy as np
 import json
 import simpleNode
+from igraph import *
 from model_gen import ModelGeneratorNS
 from pntools import petrinet as pn
 
@@ -44,6 +45,13 @@ ws, edges, vertex_attr = mg.generate_graph()
 #create a petriNet object on pntools                      
 net = pn.PetriNet()
 net.name = "GeneratedPetriNet"
+
+#printing the graph image
+g = Graph(n=args["nodes"], edges=edges, directed=True,
+				vertex_attrs=vertex_attr)
+
+assert(g.is_dag())
+plot(g, target='petrinet.png')
 
 #create the places in the pntools object
 for i in range(len(ws)):
@@ -124,15 +132,27 @@ for i in range(len(ws)):
     step_node_list = ws[i]
     print("production step:",i,"\n")
     #goes into all the nodes of each step
-    for j in range(len(step_node_list)):
-        print("Node:",step_node_list[j])
-        bufferSize = int(input("Insert the buffer size: "))
-        timeActivity = int(input("Insert the time activity: "))
-        productionStep = i
+    a = input("Do you want to set a default value for the buffer size and time activity of this production step? y(yes) or n(no):")
+    if a == 'y':
+        bufferSize = int(input("Insert the default buffer size, insert 0 for infite buffer size: "))
+        timeActivity = int(input("Insert the default time activity: "))
+        for j in range(len(step_node_list)):
+            print("Node:",step_node_list[j])
+            productionStep = i
 
-        #adding the metadata of the node in simple node class modelation
-        newNode = simpleNode.simpleNode(timeActivity,step_node_list[j],bufferSize,productionStep)
-        nodeList.append(newNode)
+            #adding the metadata of the node in simple node class modelation
+            newNode = simpleNode.simpleNode(timeActivity,step_node_list[j],bufferSize,productionStep)
+            nodeList.append(newNode)
+    else:
+        for j in range(len(step_node_list)):
+            print("Node:",step_node_list[j])
+            bufferSize = int(input("Insert the buffer size: "))
+            timeActivity = int(input("Insert the time activity: "))
+            productionStep = i
+
+            #adding the metadata of the node in simple node class modelation
+            newNode = simpleNode.simpleNode(timeActivity,step_node_list[j],bufferSize,productionStep)
+            nodeList.append(newNode)
 
 #transform into a json file
 JSONlist = []
