@@ -51,7 +51,7 @@ g = Graph(n=args["nodes"], edges=edges, directed=True,
 				vertex_attrs=vertex_attr)
 
 assert(g.is_dag())
-plot(g, target='petrinet.png')
+plot(g, target='graph.png')
 
 #create the places in the pntools object
 for i in range(len(ws)):

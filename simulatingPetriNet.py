@@ -13,7 +13,7 @@ env = simpy.Environment()
 pn = pm4py.read_pnml("generatedPetriNet.pnml")
 
 #print the petriNet
-pm4py.save_vis_petri_net(pn[0], pn[1], pn[2], 'petri_net.png')
+pm4py.save_vis_petri_net(pn[0], pn[1], pn[2], 'petrinet.png')
 
 #create a empty list of nodes
 nodes = []
